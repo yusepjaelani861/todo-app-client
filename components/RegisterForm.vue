@@ -10,13 +10,17 @@ const form = ref({
     password_confirmation: '',
 });
 
+let loading = ref(false)
+
 async function submit(e) {
     e.preventDefault();
 
+    loading.value = true
     try {
         const { error } = await useAuthUser().register(form.value)
 
         if (error) {
+            loading.value = false
             Swal.fire({
                 title: 'Error!',
                 text: error,
@@ -30,6 +34,7 @@ async function submit(e) {
         form.value.password = ''
         form.value.password_confirmation = ''
 
+        loading.value = false
         Swal.fire({
             title: 'Success!',
             text: 'You have successfully registered!',
@@ -38,6 +43,7 @@ async function submit(e) {
 
         navigateTo("/login")
     } catch (error) {
+        loading.value = false
         Swal.fire({
             title: 'Error!',
             text: error.response.data.message,
@@ -72,14 +78,15 @@ async function submit(e) {
             </label>
 
             <label for="password_confirmation">
-                <p class="text-slate-100">password_confirmation</p>
+                <p class="text-slate-100">Password Confirmation</p>
                 <input type="password" class="w-full p-2 rounded-lg shadow-sm border border-slate-800 text-slate-900"
                     placeholder="password_confirmation" required v-model="form.password_confirmation" />
             </label>
 
             <button type="submit"
-                class="bg-slate-800 p-2 px-4 rounded-lg shadow-sm border border-dashed border-gray-500 hover:border-solid hover:border-green-500">
-                Register
+                :disabled="loading"
+                class="bg-slate-800 p-2 px-4 rounded-lg shadow-sm border border-dashed border-gray-500 hover:border-solid hover:border-green-500 disabled:opacity-80 disabled:cursor-not-allowed">
+                {{ loading ? 'Loading...' : 'Register' }}
             </button>
         </form>
     </Card>
